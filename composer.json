@@ -1,0 +1,10 @@
+{
+  "name" : "PHPConsistent-start",
+  "require" : {
+    "firephp/firephp-core" : ">=v0.4.0"
+  },
+  "repositories" : [ {
+    "type" : "composer",
+    "url" : "https://packagist.org/"
+  } ]
+}
