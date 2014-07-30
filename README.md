@@ -1,9 +1,9 @@
 # PHPConsistent
 
-PHPConsistent is a dynamic code analysis tool that verifies the consistency between the function/method calls your code makes and the in-line documentation (docblock) of the called functions/methods.
-The goal is :
-* To verify your code is making calls using the right parameters and parameter types
-* To verify if the in-line documentation (docblock) of the called functions/methods is accurate
+PHPConsistent is a dynamic and static code analysis tool that verifies the consistency between the function/method calls your code makes and the in-line documentation (docblock) of the called functions/methods.
+The goal is to improve code quality of your code and the libraries you use by :
+* Verifying your code is making calls using the right parameters and parameter types
+* Verifying if the in-line documentation (docblock) of the called functions/methods is accurate
 
 It will compare :
 * Parameter types specified in the docblock <-> parameters passed upon calling the function/method

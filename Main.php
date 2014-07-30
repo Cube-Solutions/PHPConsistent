@@ -6,8 +6,9 @@
  * @package    PHPConsistent
  * @author     Wim Godden <wim@wimgodden.be>
  * @copyright  2009-2014 Wim Godden <wim@wimgodden.be>
- * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
+ * @license    https://www.gnu.org/licenses/lgpl.html  The LGPL 3 License
  * @link       http://phpconsistent.cu.be/
+ * @version    0.1
  *
  */
 class PHPConsistent_Main
@@ -87,33 +88,6 @@ class PHPConsistent_Main
         $this->_ignoredFileNames = $ignoredFileNames;
         $this->_ignoredClassNames = $ignoredClassNames;
         $this->_ignoredFunctions = $ignoredFunctions;
-    }
-
-    /**
-     * Set the trace filename
-     * @param string $fileName
-     */
-    public function setTracefile($fileName)
-    {
-        $this->_traceFile = $fileName;
-    }
-
-    /**
-     * Set the depth of the checks
-     * @param int $depth
-     */
-    public function setDepth($depth)
-    {
-        $this->_depth = $depth;
-    }
-
-    /**
-     * Set whether to ignore null values as parameters
-     * @param boolean $ignorenull
-     */
-    public function setIgnoreNull($ignorenull)
-    {
-        $this->_ignorenull = $ignorenull;
     }
 
     /**
@@ -258,7 +232,7 @@ class PHPConsistent_Main
         $returnStack = array();
 
         if (!file_exists($this->_traceFile . '.xt') || ($handle = fopen($this->_traceFile . '.xt', 'r')) === false) {
-            return false;
+            return;
         }
 
         // See http://xdebug.org/docs/all_settings#trace_format
@@ -469,24 +443,57 @@ class PHPConsistent_Main
         fclose($handle);
     }
 
+    /**
+     * Add a failure about incorrect parameter type
+     * @param string $fileName
+     * @param int    $fileLine
+     * @param string $calledFunction
+     * @param int    $parameterNumber
+     * @param string $parameterName
+     * @param string $expectedType
+     * @param string $calledType
+     */
     protected function addParamTypeFailure($fileName, $fileLine, $calledFunction, $parameterNumber, $parameterName, $expectedType, $calledType)
     {
         $data = 'Invalid type calling ' . $calledFunction . ' : parameter ' . $parameterNumber  . ' (' . $parameterName . ') should be of type ' . $expectedType . ' but got ' . $calledType . ' instead';
         $this->reportFailure($fileName, $fileLine, $data);
     }
 
+    /**
+     * Add a failure about mismatching parameter names
+     * @param string $fileName
+     * @param int    $fileLine
+     * @param stirng $calledFunction
+     * @param int    $parameterNumber
+     * @param string $expectedName
+     * @param string $calledName
+     */
     protected function addParamNameMismatchFailure($fileName, $fileLine, $calledFunction, $parameterNumber, $expectedName, $calledName)
     {
         $data = 'Parameter names in function definition and docblock don\'t match when calling ' . $calledFunction . ' : parameter ' . $parameterNumber . ' (' . $calledName . ') should be called ' . $expectedName . ' according to docblock';
         $this->reportFailure($fileName, $fileLine, $data);
     }
 
+    /**
+     * Add a failure about mismatching parameter count
+     * @param string $fileName
+     * @param int    $fileLine
+     * @param string $calledFunction
+     * @param int    $expectedCount
+     * @param int    $actualCount
+     */
     protected function addParamCountMismatchFailure($fileName, $fileLine, $calledFunction, $expectedCount, $actualCount)
     {
         $data = 'Parameter count in function definition and docblock don\'t match when calling ' . $calledFunction . ' : function has ' . $actualCount . ' but should be ' . $expectedCount . ' according to docblock';
         $this->reportFailure($fileName, $fileLine, $data);
     }
 
+    /**
+     * Output to the chosen reporting system
+     * @param string $fileName
+     * @param int    $fileLine
+     * @param string $data
+     */
     protected function reportFailure($fileName, $fileLine, $data)
     {
         switch ($this->_log) {
