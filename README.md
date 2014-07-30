@@ -3,7 +3,8 @@ PHPConsistent
 
 Using PHPConsistent in your bootstrap file
 ------------------------------------------
-```$phpconsistent = new PHPConsistent_Main(
+```php
+$phpconsistent = new PHPConsistent_Main(
     null,    // Full path of the trace file - PHPConsistent normally takes care of this
     10,      // Maximum code depth to search - default = 10 calls deep
     false,    // Ignore null values as parameters - default = false
@@ -16,11 +17,13 @@ Using PHPConsistent in your bootstrap file
     array(                // Array of function strings to ignore calls to
     )
 );
-$phpconsistent->start();```
+$phpconsistent->start();
+```
 
 
 Example, ignore null values, reporting 10 levels deep via FirePHP and ignoring all calls from Zend Framework files :
-```$phpconsistent = new PHPConsistent_Main(
+```php
+$phpconsistent = new PHPConsistent_Main(
     null,
     20,
     true,
@@ -30,7 +33,8 @@ Example, ignore null values, reporting 10 levels deep via FirePHP and ignoring a
     array(),
     array()
 );
-$phpconsistent->start();```
+$phpconsistent->start();
+```
 
 
 PHPConsistent using an automatic prepend
