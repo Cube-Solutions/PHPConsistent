@@ -6,7 +6,7 @@ The goal is to improve code quality of your code and the libraries you use by :
 * Verifying if the in-line documentation (docblock) of the called functions/methods is accurate
 
 It will compare :
-* Parameter types specified in the docblock <-> parameters passed upon calling the function/method
+* Parameter types specified in the docblock <-> types of parameters passed upon calling the function/method
 * Number of parameters specified in the docblock <-> number of parameters actually present in the function/method definition
 * Names of parameters specified in the docblock <-> names of parameters actually present in the function/method definition
 
