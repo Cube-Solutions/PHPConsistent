@@ -29,7 +29,7 @@ Parameter count in function definition and docblock don't match when calling One
 
 
 ##Using PHPConsistent in your bootstrap file
-More documentation is need here, but for now just include_once('Main.php') and then :
+More documentation will be added here, but really all that's needed is to include_once('Main.php') and then :
 ```php
 $phpconsistent = new PHPConsistent_Main(
     null,    // Full path of the trace file - PHPConsistent normally takes care of this
