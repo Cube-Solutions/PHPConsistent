@@ -1,5 +1,7 @@
 # PHPConsistent
 
+Disclaimer : this is the first release. I know the code can be massively improved, but that's what pull requests are for ;-) - Any feedback welcome !
+ 
 PHPConsistent is a dynamic and static code analysis tool that verifies the consistency between the function/method calls your code makes and the in-line documentation (docblock) of the called functions/methods.
 The goal is to improve code quality of your code and the libraries you use by :
 * Verifying your code is making calls using the right parameters and parameter types
@@ -26,6 +28,12 @@ Parameter count in function definition and docblock don't match when calling One
 * PHP 5.3 or higher
 * Xdebug 2.2.4 or higher
 * FirePHP Core 0.4.0 or higher (if you want to use FirePHP reporting)
+
+
+## Performance
+
+Since PHPConsistent needs Xdebug to produce a complete trace of the code, it creates quite a big file. It then analyzes that big file.
+In other words : it slows down your code by a factor of 5-20, so under no circumstances should it be used in production.  
 
 
 ##Using PHPConsistent in your bootstrap file
