@@ -14,6 +14,12 @@ It will output to :
 * File
 * FirePHP (a plugin for Firebug)
 
+## Sample output
+
+Invalid type calling SomeClass->GiveMeAnArray : parameter 3 ($somearray) should be of type array but got boolean instead
+Parameter names in function definition and docblock don't match when calling JustAnotherFunction : parameter 2 ($inputFilename) should be called $inputFile according to docblock
+Parameter count in function definition and docblock don't match when calling OneMoreFunction : function has 6 but should be 5 according to docblock
+
 ## Requirements
 
 * PHP 5.3 or higher
