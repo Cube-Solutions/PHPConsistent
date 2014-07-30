@@ -23,6 +23,11 @@ Parameter names in function definition and docblock don't match when calling Jus
 Parameter count in function definition and docblock don't match when calling OneMoreFunction : function has 6 but should be 5 according to docblock : application/Bootstrap.php (line 215)
 ```
 
+## Is this enforcing static typing ?
+
+It's not enforcing static typing within your code, it only enforces calling functions/methods using the types defined by the developer of the function/method, which is just common sense. 
+
+
 ## Requirements
 
 * PHP 5.3 or higher
