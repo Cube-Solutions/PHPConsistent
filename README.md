@@ -16,9 +16,9 @@ It will output to :
 
 ## Sample output
 ```
-Invalid type calling SomeClass->GiveMeAnArray : parameter 3 ($somearray) should be of type array but got boolean instead
-Parameter names in function definition and docblock don't match when calling JustAnotherFunction : parameter 2 ($inputFilename) should be called $inputFile according to docblock
-Parameter count in function definition and docblock don't match when calling OneMoreFunction : function has 6 but should be 5 according to docblock
+Invalid type calling SomeClass->GiveMeAnArray : parameter 3 ($somearray) should be of type array but got boolean instead : library/App.php (line 5)
+Parameter names in function definition and docblock don't match when calling JustAnotherFunction : parameter 2 ($inputFilename) should be called $inputFile according to docblock : application/Bootstrap.php (line 214)
+Parameter count in function definition and docblock don't match when calling OneMoreFunction : function has 6 but should be 5 according to docblock : application/Bootstrap.php (line 215)
 ```
 
 ## Requirements
