@@ -108,17 +108,32 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
 3. From/to PHPUnit :
  - Setup PHPUnit for your unit tests
  - Add to your phpunit.xml :
-   ><listeners>
-   >  <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
+   ```
+   <listeners>
+   
+     <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
+     
        <arguments>
+       
          <array>
+         
            <element key="depth">
+           
              <integer>10</integer>
+             
            </element>
+           
            <element key="ignorenull">
+           
              <boolean>false</boolean>
+             
            </element>
+           
          </array>
+         
        </arguments>
+       
      </listener>
+     
    </listeners>
+   ```
