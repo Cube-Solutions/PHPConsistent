@@ -111,15 +111,13 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
      <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
        <arguments>
          <array>
-           <element key="0">
-             <string>Sebastian</string>
+           <element key="depth">
+             <integer>10</integer>
+           </element>
+           <element key="ignorenull">
+             <boolean>false</boolean>
            </element>
          </array>
-         <integer>22</integer>
-         <string>April</string>
-         <double>19.78</double>
-         <null/>
-         <object class="stdClass"/>
        </arguments>
      </listener>
    </listeners>
