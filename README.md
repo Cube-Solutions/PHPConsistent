@@ -107,7 +107,9 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
  - Set the 'log' configuration parameter to PHPConsistent_Main::LOG_TO_FIREPHP
 3. From/to PHPUnit :
  - Setup PHPUnit for your unit tests
- - <listeners>
+ - Add to your phpunit.xml :
+   ```xml
+   <listeners>
      <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
        <arguments>
          <array>
@@ -121,3 +123,4 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
        </arguments>
      </listener>
    </listeners>
+   ```
