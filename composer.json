@@ -1,5 +1,5 @@
 {
-  "name" : "Cubesolutions/PHPConsistent",
+  "name" : "cubesolutions/phpconsistent",
   "description" : "PHPConsistent is a dynamic and static code analysis tool that verifies the consistency between the function/method calls your code makes and the in-line documentation (docblock) of the called functions/methods.",
   "require" : {
     "firephp/firephp-core" : ">=v0.4.0"
