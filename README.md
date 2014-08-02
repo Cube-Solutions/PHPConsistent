@@ -15,6 +15,7 @@ It will compare :
 It will output to :
 * File
 * FirePHP (a plugin for Firebug)
+* PHPUnit, when run as a TestListener in PHPUnit
 
 ## Sample output
 ```
@@ -28,12 +29,24 @@ Parameter count in function definition and docblock don't match when calling One
 * PHP 5.3 or higher
 * Xdebug 2.2.4 or higher
 * FirePHP Core 0.4.0 or higher (if you want to use FirePHP reporting)
+* PHPUnit 3.8 or higher (if you want to run it from your unit tests)
 
 
 ## Performance
 
 Since PHPConsistent needs Xdebug to produce a complete trace of the code, it creates quite a big file. It then analyzes that big file.
 In other words : it slows down your code by a factor of 5-20, so under no circumstances should it be used in production.  
+
+
+## Installing
+Via Composer
+```
+{
+    "require": {
+        "league/phpunit-coverage-listener": "~1.1"
+    }
+}
+```
 
 
 ##Using PHPConsistent in your bootstrap file
@@ -92,3 +105,21 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
 2. To FirePHP :
  - Install Firebug and FirePHP in your Firefox
  - Set the 'log' configuration parameter to PHPConsistent_Main::LOG_TO_FIREPHP
+3. From/to PHPUnit :
+ - Setup PHPUnit for your unit tests
+ - <listeners>
+     <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
+       <arguments>
+         <array>
+           <element key="0">
+             <string>Sebastian</string>
+           </element>
+         </array>
+         <integer>22</integer>
+         <string>April</string>
+         <double>19.78</double>
+         <null/>
+         <object class="stdClass"/>
+       </arguments>
+     </listener>
+   </listeners>

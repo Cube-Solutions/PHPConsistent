@@ -8,7 +8,7 @@
  * @copyright  2009-2014 Wim Godden <wim@wimgodden.be>
  * @license    https://www.gnu.org/licenses/lgpl.html  The LGPL 3 License
  * @link       http://phpconsistent.cu.be/
- * @version    0.1
+ * @version    0.2
  *
  */
 class PHPConsistent_Main
@@ -16,6 +16,7 @@ class PHPConsistent_Main
     const LOG_TO_NULL = 0;
     const LOG_TO_FILE = 1;
     const LOG_TO_FIREPHP = 2;
+    const LOG_TO_PHPUNIT = 3;
 
     /**
      * Temporary trace file for xDebug
@@ -66,6 +67,12 @@ class PHPConsistent_Main
     protected $_ignoredFunctions;
 
     /**
+     * List of failures to report back, if required for logging method
+     * @var array
+     */
+    protected $_failures = array();
+
+    /**
      * Initialize PHPConsistent, return PHPConsistent object
      *
      * @param string $traceFile
@@ -110,14 +117,15 @@ class PHPConsistent_Main
         ini_set('xdebug.trace_options', 0);
         xdebug_start_trace($this->_traceFile);
 
-        switch ($this->_log) {
-            case self::LOG_TO_FIREPHP:
-                ob_start();
-                break;
+        if ($this->_log === self::LOG_TO_FIREPHP) {
+            ob_start();
+            break;
         }
 
-        register_shutdown_function(array($this, 'stop'));
-        register_shutdown_function(array($this, 'analyze'));
+        if ($this->_log !== self::LOG_TO_PHPUNIT) {
+            register_shutdown_function(array($this, 'stop'));
+            register_shutdown_function(array($this, 'analyze'));
+        }
 
         return true;
     }
@@ -148,6 +156,10 @@ class PHPConsistent_Main
         unlink($this->_traceFile);
         if (file_exists($this->_traceFile . '.xt')) {
             unlink($this->_traceFile . '.xt');
+        }
+
+        if (count($this->_failures) > 0) {
+            return $this->_failures;
         }
     }
 
@@ -227,7 +239,7 @@ class PHPConsistent_Main
     /**
      * Process the function calls from the Xdebug trace file
      */
-    public function processFunctionCalls()
+    protected function processFunctionCalls()
     {
         $returnStack = array();
 
@@ -508,6 +520,13 @@ class PHPConsistent_Main
                 require_once 'FirePHPCore/FirePHP.class.php';
                 $firephp = FirePHP::getInstance(true);
                 $firephp->warn($fileName . ' (line ' . $fileLine . ')', $data);
+                break;
+            case self::LOG_TO_PHPUNIT;
+                $this->_failures[] = array(
+                    'fileName' => $fileName,
+                    'fileLine' => $fileLine,
+                    'data' => $data
+                );
                 break;
         }
     }
