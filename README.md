@@ -35,7 +35,8 @@ Parameter count in function definition and docblock don't match when calling One
 ## Performance
 
 Since PHPConsistent needs Xdebug to produce a complete trace of the code, it creates quite a big file. It then analyzes that big file.
-In other words : it slows down your code by a factor of 5-20, so under no circumstances should it be used in production.  
+In other words : it slows down your code by a factor of 5-20, so under no circumstances should it be used in production.
+If you want to use the PHPUnit integration and you have a lot of unit tests, it's advisable not to run it on your local machine, but instead on a test environment or your continuous integration platform.   
 
 
 ## Installing
