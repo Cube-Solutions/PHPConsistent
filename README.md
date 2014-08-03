@@ -136,4 +136,5 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
      </listener>
      
    </listeners>
+
    ```

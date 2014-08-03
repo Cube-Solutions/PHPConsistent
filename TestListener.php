@@ -1,6 +1,8 @@
 <?php
 
-class PHPConsistentTestListener extends PHPUnit_Framework_TestListener
+require_once 'Main.php';
+
+class PHPConsistentTestListener implements PHPUnit_Framework_TestListener
 {
     /**
      * PHPConsistent object
@@ -9,6 +11,11 @@ class PHPConsistentTestListener extends PHPUnit_Framework_TestListener
     private $_phpc;
 
     public function __construct($args = array())
+    {
+    }
+
+
+    public function startTest(PHPUnit_Framework_Test $test)
     {
         $this->_phpc = new PHPConsistent_Main(
             null,
@@ -23,11 +30,6 @@ class PHPConsistentTestListener extends PHPUnit_Framework_TestListener
             ),
             array()
         );
-    }
-
-
-    public function startTest(PHPUnit_Framework_Test $test)
-    {
         $this->_phpc->start();
     }
 
@@ -35,9 +37,18 @@ class PHPConsistentTestListener extends PHPUnit_Framework_TestListener
     {
         $this->_phpc->stop();
         $failures = $this->_phpc->analyze();
-
-        foreach ($failures as $failure) {
-            $this->addFailure($test, new PHPUnit_Framework_AssertionFailedError($failure['data'], 1), $time);
-        }
+		if (count($failures) > 0) {
+			foreach ($failures as $failure) {
+				$this->addFailure($test, new PHPUnit_Framework_AssertionFailedError($failure['data'], 1), $time);
+			}
+		}
     }
+
+	public function addError(PHPUnit_Framework_Test $test, Exception $e, $time) {}
+    public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time) {}
+    public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time) {}
+    public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time) {}
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite) {}
+    public function endTestSuite(PHPUnit_Framework_TestSuite $suite) {}
+    public function addRiskyTest(PHPUnit_Framework_Test $test, Exception $e, $time) {}
 }
