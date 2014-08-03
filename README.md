@@ -108,7 +108,7 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
 3. From/to PHPUnit :
  - Setup PHPUnit for your unit tests
  - Add to your phpunit.xml :
-   ```
+```
    <listeners>
    
      <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
