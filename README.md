@@ -15,6 +15,7 @@ It will compare :
 It will output to :
 * File
 * FirePHP (a plugin for Firebug)
+* PHPUnit, when run as a TestListener in PHPUnit
 
 ## Sample output
 ```
@@ -33,12 +34,25 @@ It's not enforcing static typing within your code, it only enforces calling func
 * PHP 5.3 or higher
 * Xdebug 2.2.4 or higher
 * FirePHP Core 0.4.0 or higher (if you want to use FirePHP reporting)
+* PHPUnit 3.8 or higher (if you want to run it from your unit tests)
 
 
 ## Performance
 
 Since PHPConsistent needs Xdebug to produce a complete trace of the code, it creates quite a big file. It then analyzes that big file.
-In other words : it slows down your code by a factor of 5-20, so under no circumstances should it be used in production.  
+In other words : it slows down your code by a factor of 5-20, so under no circumstances should it be used in production.
+If you want to use the PHPUnit integration and you have a lot of unit tests, it's advisable not to run it on your local machine, but instead on a test environment or your continuous integration platform.   
+
+
+## Installing
+Via Composer
+```
+{
+    "require": {
+        "cubesolutions/phpconsistent": "dev-master"
+    }
+}
+```
 
 
 ##Using PHPConsistent in your bootstrap file
@@ -97,3 +111,35 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
 2. To FirePHP :
  - Install Firebug and FirePHP in your Firefox
  - Set the 'log' configuration parameter to PHPConsistent_Main::LOG_TO_FIREPHP
+3. From/to PHPUnit :
+ - Setup PHPUnit for your unit tests
+ - Add to your phpunit.xml :
+```
+   <listeners>
+   
+     <listener class="PHPConsistentTestListener" file="/optional/path/to/PHPConsistentTestListener.php">
+     
+       <arguments>
+       
+         <array>
+         
+           <element key="depth">
+           
+             <integer>10</integer>
+             
+           </element>
+           
+           <element key="ignorenull">
+           
+             <boolean>false</boolean>
+             
+           </element>
+           
+         </array>
+         
+       </arguments>
+       
+     </listener>
+     
+   </listeners>
+```

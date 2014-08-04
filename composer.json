@@ -1,10 +1,19 @@
 {
-  "name" : "PHPConsistent-start",
+  "name" : "cubesolutions/phpconsistent",
+  "description" : "PHPConsistent is a dynamic and static code analysis tool that verifies the consistency between the function/method calls your code makes and the in-line documentation (docblock) of the called functions/methods.",
   "require" : {
     "firephp/firephp-core" : ">=v0.4.0"
   },
-  "repositories" : [ {
-    "type" : "composer",
-    "url" : "https://packagist.org/"
-  } ]
+  "authors" : [ {
+    "name" : "Wim Godden",
+    "role" : "lead"
+  } ],
+  "support" : {
+    "issues" : "https://github.com/Cube-Solutions/PHPConsistent/issues",
+    "source" : "https://github.com/Cube-Solutions/PHPConsistent"
+  },
+  "keywords" : [ "consistency", "documentation", "docblock", "type validation", "phpunit" ],
+  "license" : "LGPL",
+  "type" : "library",
+  "homepage" : "http://techblog.wimgodden.be/tag/phpconsistent/"
 }

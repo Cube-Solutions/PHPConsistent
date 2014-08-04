@@ -8,7 +8,7 @@
  * @copyright  2009-2014 Wim Godden <wim@wimgodden.be>
  * @license    https://www.gnu.org/licenses/lgpl.html  The LGPL 3 License
  * @link       http://phpconsistent.cu.be/
- * @version    0.1
+ * @version    0.2
  *
  */
 class PHPConsistent_Main
@@ -16,6 +16,7 @@ class PHPConsistent_Main
     const LOG_TO_NULL = 0;
     const LOG_TO_FILE = 1;
     const LOG_TO_FIREPHP = 2;
+    const LOG_TO_PHPUNIT = 3;
 
     /**
      * Temporary trace file for xDebug
@@ -66,6 +67,14 @@ class PHPConsistent_Main
     protected $_ignoredFunctions;
 
     /**
+     * List of failures to report back, if required for logging method
+     * @var array
+     */
+    protected $_failures = array();
+
+	protected $_starttime;
+
+    /**
      * Initialize PHPConsistent, return PHPConsistent object
      *
      * @param string $traceFile
@@ -95,6 +104,7 @@ class PHPConsistent_Main
      */
     public function start()
     {
+		$this->_starttime = microtime(true);
         if (extension_loaded('xdebug') === false) {
             return false;
         }
@@ -110,14 +120,15 @@ class PHPConsistent_Main
         ini_set('xdebug.trace_options', 0);
         xdebug_start_trace($this->_traceFile);
 
-        switch ($this->_log) {
-            case self::LOG_TO_FIREPHP:
-                ob_start();
-                break;
+        if ($this->_log === self::LOG_TO_FIREPHP) {
+            ob_start();
+            break;
         }
 
-        register_shutdown_function(array($this, 'stop'));
-        register_shutdown_function(array($this, 'analyze'));
+        if ($this->_log !== self::LOG_TO_PHPUNIT) {
+            register_shutdown_function(array($this, 'stop'));
+            register_shutdown_function(array($this, 'analyze'));
+        }
 
         return true;
     }
@@ -130,7 +141,6 @@ class PHPConsistent_Main
         if (extension_loaded('xdebug') === false) {
             return false;
         }
-
         xdebug_stop_trace();
 
         return true;
@@ -149,6 +159,12 @@ class PHPConsistent_Main
         if (file_exists($this->_traceFile . '.xt')) {
             unlink($this->_traceFile . '.xt');
         }
+
+        if (count($this->_failures) > 0) {
+            return $this->_failures;
+        } else {
+		    return array();
+		}
     }
 
     /**
@@ -177,8 +193,7 @@ class PHPConsistent_Main
                 return true;
             }
 
-            preg_match_all('/\w+/', $callType, $callTypes); // Split up by words to get class names (if any)
-
+            preg_match_all('/\S+/', $callType, $callTypes); // Split up by words to get class names (if any)
             if ($callTypes[0][0] == 'class') { // If it's a class, we will get its parent classes and interface, since they are allowed types as well
                 if ($docblockType == 'object') { // For Symfony 2, they seem to do this in a few places in their DI stuff
                     return true;
@@ -193,6 +208,8 @@ class PHPConsistent_Main
 
             $foundMatch = false;
             foreach ($callTypes as $callType) {
+				$callTypeFiltered = preg_match('/[a-z]+/', $callType, $callType); // Filter out the number of characters in a string, like string(42)
+                $callType = $callType[0];
                 switch ($callType) {
                     case 'null':
                         if ($this->_ignorenull === true) {
@@ -204,6 +221,11 @@ class PHPConsistent_Main
                         break;
                     case 'float':
                         if ($docblockType == 'double' || $docblockType == 'number') {
+                            return true;
+                        }
+                        break;
+					case 'double':
+                        if ($docblockType == 'float' || $docblockType == 'number') {
                             return true;
                         }
                         break;
@@ -227,10 +249,9 @@ class PHPConsistent_Main
     /**
      * Process the function calls from the Xdebug trace file
      */
-    public function processFunctionCalls()
+    protected function processFunctionCalls()
     {
         $returnStack = array();
-
         if (!file_exists($this->_traceFile . '.xt') || ($handle = fopen($this->_traceFile . '.xt', 'r')) === false) {
             return;
         }
@@ -243,7 +264,6 @@ class PHPConsistent_Main
                 break;
             }
         }
-
         while ($dataLine = fgetcsv($handle, null, "\t")) {
             // For convenience and readability
             $tracedataLevel = $dataLine[0];
@@ -306,6 +326,11 @@ class PHPConsistent_Main
             }
 
             if ($tracedataIsReturn == 0) { // It's a function/method call
+				if (strpos($tracedataFunctionName, '{closure:') !== false) {
+                    continue;
+                }
+
+
                 preg_match(
                 '/(?P<classOrFunction>\w+){0,1}(?:\:\:|->){0,1}(?P<method>\w+){0,1}/',
                 $tracedataFunctionName,
@@ -332,31 +357,33 @@ class PHPConsistent_Main
 
                     preg_match_all('/\s*\*\s*@(?P<tag>phpconsistent-ignore)/', $docBlock, $noTypeCheck, PREG_SET_ORDER); // Check if @phpconsistent-ignore was in docblock
                     if (count($noTypeCheck) == 0) {
-
                         // Main docblock parameter and return type loop
                         preg_match_all('/\s*\*\s*@(?P<tag>param|return)\s+(?P<type>\S+)\s+(?P<paramName>\$?\w+)?/', $docBlock, $docBlockVars, PREG_SET_ORDER);
                         $documentedParameters = 0;
                         $docblockParams = array();
                         for ($cntDocBlockTag = 0; $cntDocBlockTag < count($docBlockVars); $cntDocBlockTag++) {
                             if ($docBlockVars[$cntDocBlockTag]['tag'] == "param") {
-                                $documentedParameters++;
-                                $docblockParams[] = $docBlockVars[$cntDocBlockTag]['paramName'];
-                                if (isset($dataLine[11 + $cntDocBlockTag])) { // Was the call made with this parameter ?
-                                    $foundMatch = $this->compareTypes($dataLine[11 + $cntDocBlockTag], $docBlockVars[$cntDocBlockTag]['type']);
+								$documentedParameters++;
+								if (isset($docBlockVars[$cntDocBlockTag]['paramName'])) {
+									$docblockParams[] = $docBlockVars[$cntDocBlockTag]['paramName'];
+								} else {
+									$docblockParams[] = '';
+								}
+								if (isset($dataLine[11 + $cntDocBlockTag])) { // Was the call made with this parameter ?
+									$foundMatch = $this->compareTypes($dataLine[11 + $cntDocBlockTag], $docBlockVars[$cntDocBlockTag]['type']);
 
-                                    if ($foundMatch === false) {
-                                        $this->addParamTypeFailure(
-                                            $tracedataFilename,
-                                            $tracedataLinenumber,
-                                            $calledFunction,
-                                            ($cntDocBlockTag + 1),
-                                            $docBlockVars[$cntDocBlockTag]['paramName'],
-                                            $docBlockVars[$cntDocBlockTag][2],
-                                            $dataLine[11 + $cntDocBlockTag]
-                                        );
-                                    }
-                                }
-
+									if ($foundMatch === false) {
+										$this->addParamTypeFailure(
+											$tracedataFilename,
+											$tracedataLinenumber,
+											$calledFunction,
+											($cntDocBlockTag + 1),
+											$docBlockVars[$cntDocBlockTag]['paramName'],
+											$docBlockVars[$cntDocBlockTag][2],
+											$dataLine[11 + $cntDocBlockTag]
+										);
+									}
+								}
                             } else { // Put the expected return type on the stack for later use
                                 $returnStack[] = array(
                                     'fileName'        => $tracedataFilename,
@@ -376,9 +403,10 @@ class PHPConsistent_Main
                     if ($numberOfParameters != $documentedParameters) {
                         $this->addParamCountMismatchFailure($tracedataFilename, $tracedataLinenumber, $calledFunction, $documentedParameters, $numberOfParameters);
                     }
-
                     for ($cntDocBlockParam = 0; $cntDocBlockParam < count($docblockParams); $cntDocBlockParam++) {
-                        if ($docblockParams[$cntDocBlockParam] != '$' . $functionParameters[$cntDocBlockParam]->getName()) {
+                        if (!isset($functionParameters[$cntDocBlockParam])) {
+							$this->addParamMissingFailure($tracedataFilename, $tracedataLinenumber, $calledFunction, $cntDocBlockParam, $docblockParams[$cntDocBlockParam]);
+						} elseif ($docblockParams[$cntDocBlockParam] != '$' . $functionParameters[$cntDocBlockParam]->getName()) {
                             $this->addParamNameMismatchFailure($tracedataFilename, $tracedataLinenumber, $calledFunction, $cntDocBlockParam, $docblockParams[$cntDocBlockParam], '$' . $functionParameters[$cntDocBlockParam]->getName());
                         }
 
@@ -408,7 +436,6 @@ class PHPConsistent_Main
                         'noTypeCheck'     => 1
                     );
                 }
-
             } else { // It's a return
                 // If this isn't set, we have a version of Xdebug that hasn't been patched for Xdebug bug #416
                 // Requires Xdebug with code after https://github.com/xdebug/xdebug/pull/79
@@ -456,6 +483,20 @@ class PHPConsistent_Main
     protected function addParamTypeFailure($fileName, $fileLine, $calledFunction, $parameterNumber, $parameterName, $expectedType, $calledType)
     {
         $data = 'Invalid type calling ' . $calledFunction . ' : parameter ' . $parameterNumber  . ' (' . $parameterName . ') should be of type ' . $expectedType . ' but got ' . $calledType . ' instead';
+        $this->reportFailure($fileName, $fileLine, $data);
+    }
+
+	/**
+     * Add a failure about a missing parameter in the function/method declaration
+     * @param string $fileName
+     * @param int    $fileLine
+     * @param string $calledFunction
+     * @param int    $parameterNumber
+     * @param string $parameterName
+     */
+    protected function addParamMissingFailure($fileName, $fileLine, $calledFunction, $parameterNumber, $parameterName)
+    {
+        $data = 'Missing parameter calling ' . $calledFunction . ' : parameter ' . $parameterNumber  . ' (' . $parameterName . ') does not appear in the function/method declaration';
         $this->reportFailure($fileName, $fileLine, $data);
     }
 
@@ -508,6 +549,13 @@ class PHPConsistent_Main
                 require_once 'FirePHPCore/FirePHP.class.php';
                 $firephp = FirePHP::getInstance(true);
                 $firephp->warn($fileName . ' (line ' . $fileLine . ')', $data);
+                break;
+            case self::LOG_TO_PHPUNIT;
+                $this->_failures[] = array(
+                    'fileName' => $fileName,
+                    'fileLine' => $fileLine,
+                    'data' => $data
+                );
                 break;
         }
     }
