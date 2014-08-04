@@ -15,7 +15,7 @@ It will compare :
 It will output to :
 * File
 * FirePHP (a plugin for Firebug)
-* PHPUnit, when run as a TestListener in PHPUnit
+* PHPUnit, when run as a TestListener in PHPUnit (currently under development)
 
 ## Sample output
 ```
@@ -111,7 +111,7 @@ If your code uses ob_flush(), note that PHPConsistent uses ob_start() to enable 
 2. To FirePHP :
  - Install Firebug and FirePHP in your Firefox
  - Set the 'log' configuration parameter to PHPConsistent_Main::LOG_TO_FIREPHP
-3. From/to PHPUnit :
+3. From/to PHPUnit (currently under development) :
  - Setup PHPUnit for your unit tests
  - Add to your phpunit.xml :
 ```

@@ -9,11 +9,12 @@ class PHPConsistentTestListener implements PHPUnit_Framework_TestListener
      * @var PHPConsistent_Main
      */
     private $_phpc;
-
-    public function __construct($args = array())
-    {
-    }
-
+    
+    /**
+     * Failures to report
+     * @var array
+     */
+    private $_failures = array();
 
     public function startTest(PHPUnit_Framework_Test $test)
     {
@@ -39,7 +40,7 @@ class PHPConsistentTestListener implements PHPUnit_Framework_TestListener
         $failures = $this->_phpc->analyze();
 		if (count($failures) > 0) {
 			foreach ($failures as $failure) {
-				$this->addFailure($test, new PHPUnit_Framework_AssertionFailedError($failure['data'], 1), $time);
+			    $this->_failures[] = $failure;
 			}
 		}
     }
@@ -51,4 +52,8 @@ class PHPConsistentTestListener implements PHPUnit_Framework_TestListener
     public function startTestSuite(PHPUnit_Framework_TestSuite $suite) {}
     public function endTestSuite(PHPUnit_Framework_TestSuite $suite) {}
     public function addRiskyTest(PHPUnit_Framework_Test $test, Exception $e, $time) {}
+    public function __destruct()
+    {
+        // Process $this->_failures - code incomplete at this point
+    }
 }
